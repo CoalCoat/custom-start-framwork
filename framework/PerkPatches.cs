@@ -79,17 +79,6 @@ namespace CustomStartFramework
         }
     }
 
-    [HarmonyPatch(typeof(StartingPerkElement), "Update")]
-    internal static class PerkElementUpdatePatch
-    {
-        private static void Postfix(StartingPerkElement __instance)
-        {
-            CustomStartProfile profile = CustomStartPerkRegistry.Find(__instance?.id);
-            if (profile != null)
-                CustomStartPerkUi.ApplyPerkBackground(__instance, profile);
-        }
-    }
-
     internal static class CustomStartPerkUi
     {
         private const int ExtraSlotsPerCustomPerk = 1;
@@ -162,33 +151,6 @@ namespace CustomStartFramework
             Sprite sprite = PerkIconLoader.Get(profile);
             if (sprite != null && element.icon != null)
                 element.icon.sprite = sprite;
-
-            ApplyPerkBackground(element, profile);
-        }
-
-        internal static void ApplyPerkBackground(StartingPerkElement element, CustomStartProfile profile)
-        {
-            if (element?.background == null || profile == null)
-                return;
-
-            try
-            {
-                PerkUIController ui = PerkUIController.Instance;
-                if (ui == null)
-                    return;
-
-                Color color = profile.Type switch
-                {
-                    1 => ui.red,
-                    2 => ui.orange,
-                    _ => ui.green,
-                };
-                element.background.color = color;
-            }
-            catch
-            {
-                // ignored
-            }
         }
 
         internal static void EnsureRegistered()
