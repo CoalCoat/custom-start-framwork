@@ -1,8 +1,6 @@
 # Custom Start Framework / 自定义开局框架
 
-**v1.0.0** — 开源 Perk 驱动自定义开局框架（Probably Stolen / MelonLoader）。
-
-示例与旧版配置见 [`../example/`](../example/)，**不包含在本框架发布包内**。
+**v1.0.0** — 自定义开局Perk框架，开源，附带编辑器，可自定义开局。
 
 ---
 
@@ -11,7 +9,7 @@
 ### 安装
 
 1. `CustomStartFramework-1.0.0.dll` → 游戏 `Mods/CustomStartFramework.dll`
-2. 在 `UserData/custom-start/{id}/profile.json` 放置配置（或用编辑器创建）
+2. 在 `UserData/custom-start/` 放置自定义开局Perk（用编辑器创建）
 3. 新游戏选择对应 Perk 后生效
 
 ### 配置目录
@@ -49,12 +47,44 @@ python framework/editor/edit_profiles.py -r "游戏/UserData/custom-start"
 
 ## English
 
-Open-source **Custom Start Framework**. In-game mod: **CustomStartFramework.dll**.  
-Profiles under `UserData/custom-start/{id}/`. Examples ship separately under `example/`.
+**v1.0.0** — Open-source custom-start perk framework with a bundled editor for creating your own starts.
 
-Pack: `.\scripts\Pack.ps1` from repository root.
+### Install
 
-See [GUIDE.md](./GUIDE.md) for schema and hooks.
+1. `CustomStartFramework-1.0.0.dll` → game `Mods/CustomStartFramework.dll`
+2. Place custom-start perks under `UserData/custom-start/` (create with the editor)
+3. Start a new game and select the perk to apply
+
+### Profile directory
+
+```text
+UserData/custom-start/<id>/
+  profile.json
+  icon.png          # optional
+```
+
+The mod scans and loads all profiles on startup.
+
+**Start types**: `allowedStartTypes` accepts any combination of `StartType` IDs; leave as `[]` to show the perk for all start types. See `editor/start_types.json` in the editor for the full list.
+
+### Editor (bundled in release `editor/`)
+
+```bash
+python framework/editor/edit_profiles.py -r "Game/UserData/custom-start"
+```
+
+### Pack
+
+```powershell
+.\scripts\Pack.ps1
+```
+
+Output: `dist/release/` and `dist/custom-start-framework.zip`
+
+### Documentation
+
+- [GUIDE.md](./GUIDE.md) — Mod author guide (zh/en)
+- [../example/](../example/) — Sample profiles such as scavenger start (packaged separately)
 
 ---
 

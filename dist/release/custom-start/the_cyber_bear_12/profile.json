@@ -23,9 +23,10 @@
     "metal_scanner",
     "flashlight",
     "combat_knife",
-    "hemostatic_bandage",
     "energy_drink",
-    "cat_bar"
+    "cat_bar",
+    "hemostatic_bandage_item",
+    "hemostatic_bandage_item"
   ],
   "removeItems": [],
   "extraCash": 200,
