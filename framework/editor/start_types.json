@@ -1,0 +1,15 @@
+{
+  "1": {"zh": "水商", "en": "Water Merchant"},
+  "2": {"zh": "学徒", "en": "Apprentice"},
+  "3": {"zh": "拾荒者", "en": "Scavenger"},
+  "4": {"zh": "销赃者", "en": "Fence"},
+  "5": {"zh": "私酿酒师", "en": "Moonshiner"},
+  "6": {"zh": "毒贩", "en": "Drug Dealer"},
+  "7": {"zh": "器官贩子", "en": "Organ Trader"},
+  "8": {"zh": "药剂师", "en": "Pharmacist"},
+  "9": {"zh": "街头小吃摊", "en": "Street Food Vendor"},
+  "10": {"zh": "农场主", "en": "Farmer"},
+  "11": {"zh": "枪匠", "en": "Gunsmith"},
+  "12": {"zh": "一贫如洗", "en": "Rock Bottom"},
+  "13": {"zh": "牧场主", "en": "Rancher"}
+}

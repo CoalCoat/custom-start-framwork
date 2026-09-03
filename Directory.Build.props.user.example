@@ -1,0 +1,6 @@
+<Project>
+  <!-- Copy to Directory.Build.props.user and set your local game install path. -->
+  <PropertyGroup>
+    <GameDir>f:\SteamLibrary\steamapps\common\Probably Stolen Playtest</GameDir>
+  </PropertyGroup>
+</Project>

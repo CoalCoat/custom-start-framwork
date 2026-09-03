@@ -1,0 +1,9 @@
+Custom Start Framework / 自定义开局框架
+2.0.0
+
+- v2：Perk 驱动框架；UserData/custom-start/{id}/profile.json
+- Mod 发布名 CustomStartFramework.dll
+- 打包：scripts/Pack.ps1 → dist/release/ + custom-start-framework.zip
+- allowedStartTypes 可绑定任意 StartType 编号组合；[] = 全部职业可见
+- 编辑器职业列表：editor/start_types.json（可追加新编号）
+- 示例见 ../example/

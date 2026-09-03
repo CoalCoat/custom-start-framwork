@@ -1,0 +1,14 @@
+<Project>
+  <Import Project="Directory.Build.props.user" Condition="Exists('Directory.Build.props.user')" />
+
+  <PropertyGroup>
+    <GameDir Condition="'$(GameDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Probably Stolen Playtest</GameDir>
+    <MelonLoaderDir>$(GameDir)\MelonLoader</MelonLoaderDir>
+    <MelonNet6Dir>$(MelonLoaderDir)\net6</MelonNet6Dir>
+    <Il2CppAssembliesDir>$(MelonLoaderDir)\Il2CppAssemblies</Il2CppAssembliesDir>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(ModLanguage)' == 'en'">
+    <DefineConstants>$(DefineConstants);MOD_LANG_EN</DefineConstants>
+  </PropertyGroup>
+</Project>
