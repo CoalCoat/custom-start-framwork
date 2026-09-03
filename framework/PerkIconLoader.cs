@@ -29,7 +29,7 @@ namespace CustomStartFramework
 
         internal static void InjectAll()
         {
-            Dictionary<string, Sprite> perkIcons = StartingPerkIconLoader.perkIcons;
+            var perkIcons = StartingPerkIconLoader.perkIcons;
             if (perkIcons == null)
             {
                 MelonLogger.Warning("Perk icon dictionary was not initialized.");

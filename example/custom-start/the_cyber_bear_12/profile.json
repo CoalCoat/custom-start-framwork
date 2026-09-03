@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "id": "the_cyber_bear_12",
+  "name": {
+    "zh": "赛博贝爷",
+    "en": "The Cyber Bear"
+  },
+  "description": {
+    "zh": "贝爷在极限求生拍摄中误闯时空裂隙，坠入霓虹赛博底层，野外本能化作识货眼光。旧背包在肩，手电扫描仪作指南针，战斗匕首作保险。附拾荒经营工具、识货装备与应急补给，现金+200。",
+    "en": "Bear Grylls fell through a spacetime rift into cyberpunk slums. Fieldcraft became salvage appraisal;"
+  },
+  "cost": 0,
+  "type": 0,
+  "allowedStartTypes": [
+    12
+  ],
+  "items": [
+    "labeler",
+    "magnifier",
+    "scav_token",
+    "ingot_book",
+    "backpack_large",
+    "metal_scanner",
+    "flashlight",
+    "combat_knife",
+    "hemostatic_bandage",
+    "energy_drink",
+    "cat_bar"
+  ],
+  "removeItems": [],
+  "extraCash": 200,
+  "extraRent": 0,
+  "unlockedUpgrades": [],
+  "factionReputationDelta": {
+    "lower": 30,
+    "upper": 0,
+    "security": 0,
+    "black_market": 0,
+    "revolution": 0,
+    "cartel": 0
+  }
+}

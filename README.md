@@ -1,6 +1,6 @@
 # Custom Start Framework
 
-**v2.0** — open-source perk-driven custom start framework for **Probably Stolen Playtest** (MelonLoader / IL2CPP).
+**v1.0.0** — open-source perk-driven custom start framework for **Probably Stolen Playtest** (MelonLoader / IL2CPP).
 
 Author: **Nico's Lab**  
 Community: **Nicoの游戏工坊** QQ group `1064193070`

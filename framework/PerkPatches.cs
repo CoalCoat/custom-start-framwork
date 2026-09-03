@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 using HarmonyLib;
 using Il2Cpp;
 using Il2CppSystem.Collections.Generic;
+using Il2CppTMPro;
 using UnityEngine;
 
 namespace CustomStartFramework
@@ -22,6 +24,16 @@ namespace CustomStartFramework
         private static void Postfix(PerkUIController __instance)
         {
             CustomStartPerkUi.EnsurePicker(__instance);
+            CustomStartPerkUi.OnPickerOpened(__instance);
+        }
+    }
+
+    [HarmonyPatch(typeof(PerkUIController), "OnChange")]
+    internal static class PerkSelectionChangePatch
+    {
+        private static void Postfix(PerkUIController __instance)
+        {
+            CustomStartPerkUi.SyncExtraSlots(__instance);
         }
     }
 
@@ -57,27 +69,131 @@ namespace CustomStartFramework
     }
 
     [HarmonyPatch(typeof(StartingPerkElement), "Start")]
-    internal static class PerkElementIconPatch
+    internal static class PerkElementStartPatch
     {
         private static void Postfix(StartingPerkElement __instance)
         {
             CustomStartProfile profile = CustomStartPerkRegistry.Find(__instance?.id);
-            if (profile == null || __instance.icon == null)
-                return;
-            Sprite sprite = PerkIconLoader.Get(profile);
-            if (sprite != null)
-                __instance.icon.sprite = sprite;
+            if (profile != null)
+                CustomStartPerkUi.ApplyCustomPerkElement(__instance, profile);
+        }
+    }
+
+    [HarmonyPatch(typeof(StartingPerkElement), "Update")]
+    internal static class PerkElementUpdatePatch
+    {
+        private static void Postfix(StartingPerkElement __instance)
+        {
+            CustomStartProfile profile = CustomStartPerkRegistry.Find(__instance?.id);
+            if (profile != null)
+                CustomStartPerkUi.ApplyPerkBackground(__instance, profile);
         }
     }
 
     internal static class CustomStartPerkUi
     {
-        private static readonly Dictionary<string, StartingPerk> Created =
-            new Dictionary<string, StartingPerk>(StringComparer.Ordinal);
+        private const int ExtraSlotsPerCustomPerk = 1;
+
+        private static int extraApplied;
+
+        private static readonly System.Collections.Generic.Dictionary<string, StartingPerk> Created =
+            new System.Collections.Generic.Dictionary<string, StartingPerk>(StringComparer.Ordinal);
+
+        internal static void OnPickerOpened(PerkUIController ui)
+        {
+            extraApplied = 0;
+            SyncExtraSlots(ui);
+        }
+
+        internal static void SyncExtraSlots(PerkUIController ui)
+        {
+            if (ui == null)
+                return;
+
+            int desired = CountSelectedCustomPerks(ui) * ExtraSlotsPerCustomPerk;
+            int delta = desired - extraApplied;
+            if (delta != 0)
+            {
+                ui.maxPerkCount += delta;
+                extraApplied = desired;
+            }
+            RefreshSlotCounter(ui);
+        }
+
+        private static int CountSelectedCustomPerks(PerkUIController ui)
+        {
+            if (ui.selectedPerks == null)
+                return 0;
+
+            int count = 0;
+            foreach (StartingPerkElement element in ui.selectedPerks.GetComponentsInChildren<StartingPerkElement>(true))
+            {
+                if (element != null && CustomStartPerkRegistry.Find(element.id) != null)
+                    count++;
+            }
+            return count;
+        }
+
+        private static void RefreshSlotCounter(PerkUIController ui)
+        {
+            TextMeshProUGUI slotCounter = ui.slotCounter;
+            if (slotCounter == null)
+                return;
+
+            string text = slotCounter.text;
+            if (string.IsNullOrEmpty(text))
+                return;
+
+            Match match = Regex.Match(text, "\\d+/\\d+");
+            if (!match.Success)
+                return;
+
+            string updated = $"{ui.currentPerkCount}/{ui.maxPerkCount}";
+            slotCounter.text = text.Substring(0, match.Index) + updated + text.Substring(match.Index + match.Length);
+        }
+
+        internal static void ApplyCustomPerkElement(StartingPerkElement element, CustomStartProfile profile)
+        {
+            if (element == null || profile == null)
+                return;
+
+            element.perk = GetOrCreate(profile);
+
+            Sprite sprite = PerkIconLoader.Get(profile);
+            if (sprite != null && element.icon != null)
+                element.icon.sprite = sprite;
+
+            ApplyPerkBackground(element, profile);
+        }
+
+        internal static void ApplyPerkBackground(StartingPerkElement element, CustomStartProfile profile)
+        {
+            if (element?.background == null || profile == null)
+                return;
+
+            try
+            {
+                PerkUIController ui = PerkUIController.Instance;
+                if (ui == null)
+                    return;
+
+                Color color = profile.Type switch
+                {
+                    1 => ui.red,
+                    2 => ui.orange,
+                    _ => ui.green,
+                };
+                element.background.color = color;
+            }
+            catch
+            {
+                // ignored
+            }
+        }
 
         internal static void EnsureRegistered()
         {
-            List<StartingPerk> perks = StartingPerkList.Perks;
+            Il2CppSystem.Collections.Generic.List<StartingPerk> perks = StartingPerkList.Perks;
             if (perks == null)
                 return;
 
@@ -94,38 +210,64 @@ namespace CustomStartFramework
                 return;
 
             EnsureRegistered();
-            int startType = ResolveCurrentStartType();
+            int startType = StartTypeResolver.Resolve();
             bool added = false;
 
             foreach (CustomStartProfile profile in CustomStartPerkRegistry.All)
             {
-                if (!profile.AllowsStartType(startType))
-                    continue;
-
+                bool visible = StartTypeResolver.IsVisibleForStartType(profile, startType);
                 StartingPerkElement element = FindElement(ui.availablePerks, profile.Id);
-                if (element == null)
+
+                if (visible)
                 {
-                    GameObject obj = UnityEngine.Object.Instantiate(ui.perkElementPrefab, ui.availablePerks.transform);
-                    element = obj.GetComponent<StartingPerkElement>();
                     if (element == null)
                     {
-                        UnityEngine.Object.Destroy(obj);
+                        GameObject obj = UnityEngine.Object.Instantiate(ui.perkElementPrefab, ui.availablePerks.transform);
+                        element = obj.GetComponent<StartingPerkElement>();
+                        if (element == null)
+                        {
+                            UnityEngine.Object.Destroy(obj);
+                            continue;
+                        }
+                        element.id = profile.Id;
+                        element.isSelected = false;
+                        ApplyCustomPerkElement(element, profile);
+                        obj.SetActive(true);
+                        added = true;
                         continue;
                     }
-                    element.id = profile.Id;
-                    element.isSelected = false;
-                    obj.SetActive(true);
-                    added = true;
+
+                    element.gameObject.SetActive(true);
+                    ApplyCustomPerkElement(element, profile);
+                    continue;
                 }
 
-                element.perk = GetOrCreate(profile);
-                Sprite sprite = PerkIconLoader.Get(profile);
-                if (sprite != null && element.icon != null)
-                    element.icon.sprite = sprite;
+                if (element != null)
+                    element.gameObject.SetActive(false);
+                DeselectCustomPerk(ui, profile.Id);
             }
 
             if (added)
                 ui.SortPerkContainer(ui.availablePerks);
+        }
+
+        private static void DeselectCustomPerk(PerkUIController ui, string id)
+        {
+            if (ui?.selectedPerks == null || string.IsNullOrEmpty(id))
+                return;
+
+            StartingPerkElement selected = FindElement(ui.selectedPerks, id);
+            if (selected == null)
+                return;
+
+            try
+            {
+                ui.DeselectPerk(selected);
+            }
+            catch
+            {
+                selected.isSelected = false;
+            }
         }
 
         private static StartingPerk GetOrCreate(CustomStartProfile profile)
@@ -133,7 +275,9 @@ namespace CustomStartFramework
             if (Created.TryGetValue(profile.Id, out StartingPerk existing) && existing != null)
             {
                 existing.cost = profile.Cost;
-                existing.type = (StartingPerkType)profile.Type;
+                existing.type = (StartingPerk.StartingPerkType)profile.Type;
+                existing.rawName = profile.Name?.Pick() ?? profile.Id;
+                existing.rawDescription = profile.Description?.Pick() ?? "";
                 return existing;
             }
 
@@ -142,31 +286,16 @@ namespace CustomStartFramework
                 id = profile.Id,
                 cost = profile.Cost,
                 maxSlot = 0,
-                type = (StartingPerkType)profile.Type,
+                type = (StartingPerk.StartingPerkType)profile.Type,
                 rawName = profile.Name?.Pick() ?? profile.Id,
                 rawDescription = profile.Description?.Pick() ?? "",
-                incompatiblePerks = new List<string>()
+                incompatiblePerks = new Il2CppSystem.Collections.Generic.List<string>()
             };
             Created[profile.Id] = perk;
             return perk;
         }
 
-        private static int ResolveCurrentStartType()
-        {
-            try
-            {
-                NewGameData data = NewGameData.Instance;
-                if (data != null)
-                    return (int)data.startType;
-            }
-            catch
-            {
-                // ignored
-            }
-            return CustomStartFrameworkPlugin.PendingStartType;
-        }
-
-        private static bool Contains(List<StartingPerk> list, string id)
+        private static bool Contains(Il2CppSystem.Collections.Generic.List<StartingPerk> list, string id)
         {
             for (int i = 0; i < list.Count; i++)
             {

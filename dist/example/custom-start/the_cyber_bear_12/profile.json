@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "id": "the_cyber_bear_12",
+  "name": {
+    "zh": "赛博贝爷",
+    "en": "The Cyber Bear"
+  },
+  "description": {
+    "zh": "贝爷在一次极端荒野求生拍摄中误闯入一道不稳定的时空裂隙，被抛入霓虹闪烁的赛博底层。凭借多年野外生存的本能与直觉——辨风向、追痕迹、拆旧物——他在废墟与暗巷里摸到了不少被世人遗忘的「宝贝」。如今他在底层盘下一家当铺，把求生技巧变成了识货眼光；旧背包仍挂在肩上，手电与扫描仪是新的「指南针」，战斗匕首是最后的保险。\n\n【特性】\n· 拾荒与当铺经营工具一套\n· 探险识货装备齐全\n· 随身求生物资与应急补给\n· 开局现金 -400\n· 仅「一贫如洗」起始可选",
+    "en": "During an extreme wilderness survival shoot, Bear Grylls stumbled into an unstable spacetime rift and was hurled into the neon-lit underbelly of a cyberpunk world. Drawing on years of fieldcraft—reading terrain, tracking signs, stripping salvage—he turned instinct into an eye for forgotten treasures. Now he runs a pawn shop in the slums, where survival skills meet street-smart appraisal. The old backpack still rides his shoulders; flashlight and scanner are his new compass; the combat knife is his last resort.\n\n【Features】\n· Scavenger and pawn-shop toolkit\n· Exploration and appraisal gear\n· Survival supplies and emergency rations\n· Begin with 400 less cash\n· Rock Bottom start only"
+  },
+  "cost": 0,
+  "type": 0,
+  "allowedStartTypes": [12],
+  "items": [
+    "labeler",
+    "magnifier",
+    "scav_token",
+    "ingot_book",
+    "backpack_large",
+    "metal_scanner",
+    "flashlight",
+    "combat_knife",
+    "hemostatic_bandage",
+    "energy_drink",
+    "cat_bar"
+  ],
+  "removeItems": [],
+  "extraCash": -400,
+  "extraRent": 0,
+  "unlockedUpgrades": [],
+  "factionReputationDelta": {
+    "lower": 0,
+    "upper": 0,
+    "security": 0,
+    "black_market": 0,
+    "revolution": 0,
+    "cartel": 0
+  }
+}

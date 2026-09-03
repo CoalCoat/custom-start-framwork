@@ -13,9 +13,13 @@ namespace CustomStartFramework
 
         public string Pick()
         {
-#if MOD_LANG_EN
-            if (!string.IsNullOrWhiteSpace(En)) return En;
-#endif
+            if (GameLocaleHelper.PreferEnglish())
+            {
+                if (!string.IsNullOrWhiteSpace(En))
+                    return En;
+                return Zh ?? "";
+            }
+
             return string.IsNullOrWhiteSpace(Zh) ? En ?? "" : Zh;
         }
     }
@@ -33,7 +37,7 @@ namespace CustomStartFramework
         public string Id { get; set; }
         public LocalizedText Name { get; set; } = new LocalizedText();
         public LocalizedText Description { get; set; } = new LocalizedText();
-        public int Cost { get; set; } = 1;
+        public int Cost { get; set; } = 0;
         public int Type { get; set; } = 0;
         public List<int> AllowedStartTypes { get; set; } = new List<int>();
 

@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "id": "gray_market_broker_4",
+  "name": {
+    "zh": "灰市中间人",
+    "en": "Gray Market Broker"
+  },
+  "description": {
+    "zh": "你不问货从哪来，只问值多少钱。暗灯、梦尘、各部门钥匙卡、重型手枪与走私储物舱，是你在灰市站稳脚跟的全套筹码。\n\n【特性】\n· 暗灯、梦尘与部门钥匙卡\n· 重型手枪、弹药与走私储物舱\n· 开局现金 -1",
+    "en": "You never ask where goods come from—only what they are worth. Black lamps, dream dust, department ke"
+  },
+  "cost": 0,
+  "type": 0,
+  "allowedStartTypes": [
+    4
+  ],
+  "items": [
+    "black_lamp",
+    "black_lamp",
+    "dream_dust",
+    "dream_dust",
+    "eng_keycard",
+    "heavy_handmade_pistol",
+    "heavy_pistol_ammo",
+    "heavy_pistol_ammo",
+    "med_keycard",
+    "sec_keycard",
+    "smuggler_bay"
+  ],
+  "removeItems": [],
+  "extraCash": -150,
+  "extraRent": 50,
+  "unlockedUpgrades": [],
+  "factionReputationDelta": {
+    "lower": 0,
+    "upper": 0,
+    "security": -30,
+    "black_market": 30,
+    "revolution": 0,
+    "cartel": 0
+  }
+}

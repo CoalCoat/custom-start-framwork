@@ -10,7 +10,7 @@ description: >-
 
 ## 先读这些
 
-1. [framework/GUIDE.md](../../../framework/GUIDE.md) — 框架作者指南（v2）
+1. [framework/GUIDE.md](../../../framework/GUIDE.md) — 框架作者指南（v1.0.0）
 2. [framework/README.md](../../../framework/README.md) — 安装与快速上手
 3. [docs/GAME_GUIDE.md](../../../docs/GAME_GUIDE.md) — 物品 ID（写 loadout 时查）
 

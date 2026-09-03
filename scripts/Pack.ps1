@@ -59,14 +59,17 @@ if (Test-Path $OutDir) {
 New-Item -ItemType Directory -Force -Path $EditorDir | Out-Null
 
 foreach ($dll in $builtDlls) {
-    Copy-Item -Force $dll.Path (Join-Path $OutDir $dll.Name)
+    $dest = Join-Path $OutDir $dll.Name
+    if ($dll.Path -ne $dest) {
+        Copy-Item -Force $dll.Path $dest
+    }
     Write-Host "  copied $($dll.Name)" -ForegroundColor DarkGreen
 }
 
-foreach ($doc in @('README.md', 'GUIDE.md')) {
-    $src = Join-Path $FrameworkRoot $doc
-    if (Test-Path $src) { Copy-Item -Force $src (Join-Path $OutDir $doc) }
-}
+$readmeSrc = Join-Path $FrameworkRoot 'README.md'
+if (Test-Path $readmeSrc) { Copy-Item -Force $readmeSrc (Join-Path $OutDir 'README.md') }
+$guideInRelease = Join-Path $OutDir 'GUIDE.md'
+if (Test-Path $guideInRelease) { Remove-Item -Force $guideInRelease }
 
 $changeLogSrc = Join-Path $FrameworkRoot 'change.log'
 if (Test-Path $changeLogSrc) { Copy-Item -Force $changeLogSrc (Join-Path $OutDir 'change.log') }
@@ -76,8 +79,24 @@ if (Test-Path $editorSrc) { Copy-Item -Force (Join-Path $editorSrc '*') $EditorD
 @(
     '@echo off',
     'cd /d "%~dp0"',
-    'python edit_profiles.py %*',
-    'if errorlevel 1 pause'
+    '',
+    'set "PY="',
+    'where python >nul 2>&1 && set "PY=python"',
+    'if not defined PY where py >nul 2>&1 && set "PY=py -3"',
+    'if not defined PY (',
+    '  echo [Error] Python 3 not found. Install from https://www.python.org/downloads/',
+    '  echo         and enable "Add python.exe to PATH" during setup.',
+    '  pause',
+    '  exit /b 1',
+    ')',
+    '',
+    '%PY% edit_profiles.py %*',
+    'set "RC=%ERRORLEVEL%"',
+    'if not "%RC%"=="0" (',
+    '  echo.',
+    '  echo Editor exited with error %RC%.',
+    '  pause',
+    ')'
 ) | Set-Content -Path (Join-Path $EditorDir 'run_editor.bat') -Encoding ASCII
 
 if (Test-Path $ZipPath) { Remove-Item -Force $ZipPath }

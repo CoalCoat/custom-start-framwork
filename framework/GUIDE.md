@@ -1,6 +1,6 @@
 # Custom Start Framework Guide / 自定义开局框架指南
 
-> **Custom Start Framework v2**。示例见 [`../example/`](../example/)。
+> **Custom Start Framework v1.0.0**。示例见 [`../example/`](../example/)。
 
 ---
 

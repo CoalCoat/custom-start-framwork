@@ -15,7 +15,7 @@ using PsModI18n;
 using MelonLoader.Utils;
 using Il2Cpp;
 
-[assembly: MelonInfo(typeof(CustomStartFramework.CustomStartFrameworkPlugin), "CustomStartFramework", "2.0.0", "Nico's Lab")]
+[assembly: MelonInfo(typeof(CustomStartFramework.CustomStartFrameworkPlugin), "CustomStartFramework", "1.0.0", "Nico's Lab")]
 [assembly: MelonProcess("Probably Stolen.exe")]
 
 namespace CustomStartFramework
@@ -445,8 +445,9 @@ namespace CustomStartFramework
             MelonLogger.Msg($"[diag] {hook} called (PendingStartType={PendingStartType})");
             if (PendingStartType <= 0) return;
 
+            CustomStartProfile resolved = null;
             if (ActiveProfile == null &&
-                !CustomStartPerkRegistry.TryResolveActiveProfile(PendingStartType, out CustomStartProfile profile))
+                !CustomStartPerkRegistry.TryResolveActiveProfile(PendingStartType, out resolved))
             {
                 MelonLogger.Msg($"No active custom-start perk for startType={PendingStartType}; skipping injection.");
                 PendingStartType = 0;
@@ -454,7 +455,7 @@ namespace CustomStartFramework
             }
 
             if (ActiveProfile == null)
-                ActiveProfile = profile;
+                ActiveProfile = resolved;
 
             GrantCash(store, ActiveProfile);
             GrantRent(store, ActiveProfile);

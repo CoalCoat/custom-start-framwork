@@ -67,14 +67,14 @@
 | 3 | `SCAV` | 拾荒者 |
 | 4 | `FENCE` | 销赃者 |
 | 5 | `MOONSHINER` | 私酿酒师 |
-| 6 | `DRUG_DEALER` | 毒贩 |
+| 6 | `DRUG_DEALER` | 化学家 |
 | 7 | `ORGAN_TRADER` | 器官贩子 |
 | 8 | `PHARMACIST` | 药剂师 |
 | 9 | `STREET_FOOD_VENDOR` | 街头小吃摊 |
 | 10 | `FARMER` | 农场主 |
 | 11 | `GUNSMITH` | 枪匠 |
 | 12 | `ROCK_BOTTOM` | Rock Bottom |
-| 13 | `RANCHER` | 牧场主 |
+| 13 | `RANCHER` | 养鼠人 |
 
 开局相关：
 
@@ -274,7 +274,7 @@
 | `RETIRED_FARMER` | 退休农夫 |
 | `RETIRED_GUNSMITH` | 退休枪匠 |
 | `RETIRED_CHEMIST` | 退休化学家 |
-| `RETIRED_RANCHER` | 退休牧场主 |
+| `RETIRED_RANCHER` | 退休养鼠人 |
 | `GUN_PERMIT_I/II/III` | 枪证 I–III |
 | `WATER_TRADER` | 水商网络 |
 | `WINEMAKER` | 葡萄酒酿造 |
