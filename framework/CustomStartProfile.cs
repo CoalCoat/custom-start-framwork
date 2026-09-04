@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using PsModI18n;
 
 namespace CustomStartFramework
 {
@@ -11,17 +12,7 @@ namespace CustomStartFramework
         public string Zh { get; set; }
         public string En { get; set; }
 
-        public string Pick()
-        {
-            if (GameLocaleHelper.PreferEnglish())
-            {
-                if (!string.IsNullOrWhiteSpace(En))
-                    return En;
-                return Zh ?? "";
-            }
-
-            return string.IsNullOrWhiteSpace(Zh) ? En ?? "" : Zh;
-        }
+        public string Pick() => I18n.T(Zh, En);
     }
 
     /// <summary>

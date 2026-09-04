@@ -29,14 +29,12 @@ dist/release/           # Release output (DLLs gitignored)
 ## Build
 
 ```powershell
-.\scripts\Build.ps1           # zh + en
-.\scripts\Build.ps1 -Language zh
+.\scripts\Build.ps1
 .\scripts\Pack.ps1            # dist/release/ + custom-start-framework.zip
 .\scripts\Pack-Example.ps1
 ```
 
-Output: `dist/release/CustomStartFramework-X.Y.Z.dll` (zh) and `CustomStartFramework.en-X.Y.Z.dll` (en).  
-Rename to `CustomStartFramework.dll` in the game `Mods/` folder.
+Output: `dist/release/CustomStartFramework-X.Y.Z.dll`. Rename to `CustomStartFramework.dll` in the game `Mods/` folder. The mod follows the game locale at runtime (profile `name` / `description` zh/en fields).
 
 ## Install (players)
 

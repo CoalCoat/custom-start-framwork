@@ -7,8 +7,4 @@
     <MelonNet6Dir>$(MelonLoaderDir)\net6</MelonNet6Dir>
     <Il2CppAssembliesDir>$(MelonLoaderDir)\Il2CppAssemblies</Il2CppAssembliesDir>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(ModLanguage)' == 'en'">
-    <DefineConstants>$(DefineConstants);MOD_LANG_EN</DefineConstants>
-  </PropertyGroup>
 </Project>

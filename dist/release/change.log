@@ -8,16 +8,16 @@ Custom Start Framework / 自定义开局框架
 - Perk 驱动：UserData/custom-start/{id}/profile.json 定义开局，Mod 启动时自动扫描注册
 - 新游戏选中对应 Perk 后注入：items / removeItems、extraCash / extraRent、unlockedUpgrades、factionReputationDelta
 - allowedStartTypes 绑定起始职业；[] 或未配置 = 全部职业可见
-- 可选 icon.png 自定义 Perk 图标；name / description 支持中英文
+- 可选 icon.png 自定义 Perk 图标；name / description 支持中英文，运行时随游戏语言切换
 - 发布包含 editor/ 配置编辑器
 
 === English ===
 1.0.0
 
-First release. Install CustomStartFramework.en-1.0.0.dll → Mods/CustomStartFramework.dll.
+First release. Install CustomStartFramework-1.0.0.dll → Mods/CustomStartFramework.dll.
 
 - Perk-driven custom starts via UserData/custom-start/{id}/profile.json; auto-scanned on mod load
 - When the perk is active: inject items / removeItems, extraCash / extraRent, unlockedUpgrades, factionReputationDelta
 - allowedStartTypes limits visible start types; [] or omitted = all start types
-- Optional icon.png; name / description support zh/en in profile JSON
+- Optional icon.png; name / description support zh/en in profile JSON and follow the game locale at runtime
 - Release includes editor/ profile tool

@@ -2,7 +2,7 @@ using System;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 
-namespace CustomStartFramework
+namespace PsModI18n
 {
     internal static class GameLocaleHelper
     {
@@ -23,11 +23,7 @@ namespace CustomStartFramework
             }
             catch
             {
-#if MOD_LANG_EN
-                return true;
-#else
                 return false;
-#endif
             }
         }
     }

@@ -1,6 +1,4 @@
 param(
-    [ValidateSet('zh', 'en', 'all')]
-    [string]$Language = 'all',
     [switch]$SkipBuild
 )
 
@@ -18,38 +16,20 @@ function Get-ProjectVersion([string]$csprojPath) {
     throw "Version not found in $csprojPath"
 }
 
-function Get-DistDllName([string]$dll, [string]$Lang, [string]$Version) {
-    $base = [System.IO.Path]::GetFileNameWithoutExtension($dll)
-    if ($Lang -eq 'en') { return "$base.en-$Version.dll" }
-    return "$base-$Version.dll"
-}
-
 if (-not (Test-Path $Csproj)) { throw "Project not found: $Csproj" }
 
 $version = Get-ProjectVersion $Csproj
-$languages = if ($Language -eq 'all') { @('zh', 'en') } else { @($Language) }
-$builtDlls = @()
+$dllName = "CustomStartFramework-$version.dll"
 
 Write-Host '=== Packaging Custom Start Framework ===' -ForegroundColor Cyan
 
 if (-not $SkipBuild) {
-    & (Join-Path $PSScriptRoot 'Build.ps1') -Language $Language
-    foreach ($lang in $languages) {
-        $dllName = Get-DistDllName 'CustomStartFramework.dll' $lang $version
-        $built = Join-Path (Split-Path $Csproj -Parent) 'bin\Release\CustomStartFramework.dll'
-        $builtDlls += @{ Name = $dllName; Path = $built }
-    }
-} else {
-    foreach ($lang in $languages) {
-        $dllName = Get-DistDllName 'CustomStartFramework.dll' $lang $version
-        $candidate = Join-Path $OutDir $dllName
-        if (-not (Test-Path $candidate)) { throw "Built DLL not found: $candidate" }
-        $builtDlls += @{ Name = $dllName; Path = $candidate }
-    }
+    & (Join-Path $PSScriptRoot 'Build.ps1')
+} elseif (-not (Test-Path (Join-Path $OutDir $dllName))) {
+    throw "Built DLL not found: $(Join-Path $OutDir $dllName)"
 }
 
-$keepDlls = @{}
-foreach ($dll in $builtDlls) { $keepDlls[$dll.Name] = $dll.Path }
+$keepDlls = @{ $dllName = $true }
 
 if (Test-Path $OutDir) {
     Get-ChildItem $OutDir -File -Filter '*.dll' | Where-Object { -not $keepDlls.ContainsKey($_.Name) } | Remove-Item -Force
@@ -57,14 +37,6 @@ if (Test-Path $OutDir) {
     New-Item -ItemType Directory -Force -Path $OutDir | Out-Null
 }
 New-Item -ItemType Directory -Force -Path $EditorDir | Out-Null
-
-foreach ($dll in $builtDlls) {
-    $dest = Join-Path $OutDir $dll.Name
-    if ($dll.Path -ne $dest) {
-        Copy-Item -Force $dll.Path $dest
-    }
-    Write-Host "  copied $($dll.Name)" -ForegroundColor DarkGreen
-}
 
 $readmeSrc = Join-Path $FrameworkRoot 'README.md'
 if (Test-Path $readmeSrc) { Copy-Item -Force $readmeSrc (Join-Path $OutDir 'README.md') }
