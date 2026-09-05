@@ -28,11 +28,21 @@ description: >-
 
 ## profile.json 要点
 
+**数值字段：`extra*` / `*Delta` = 在起始职业默认值上增减，不是存档绝对值。**
+
 | 字段 | 说明 |
 |---|---|
 | `id` | ASCII perk id，与文件夹名一致 |
 | `allowedStartTypes` | `StartType` 编号或 `[]` 表示全部职业（见 `editor/start_types.json`） |
-| `items` | 字符串 ID 或 `{ id, charge, water, volumeMl }` |
+| `items` | 字符串 ID 或 `{ id, charge, water, volumeMl }`；发到**柜台** |
+| `removeItems` | 从柜台移除（在 items 之前） |
+| `extraCash` / `extraRent` | 额外现金 / 租金 Δ |
+| `retailMarkupDelta` | 零售加价 Δ（百分点） |
+| `contrabandMarkupDelta` | 违禁品加价 Δ；整数=四级同加，或 `{ low, mid, high, critical }` |
+| `baseStoreAttractivenessDelta` | 店铺吸引力 Δ（基线约 250） |
+| `unlockedUpgrades` | Wilds Network 升级 ID 列表 |
+| `factionReputationDelta` | 派系声望 Δ（非存档 amount 绝对值） |
+| `compensateWildFavorForLowerRep` | 默认 true：lower Δ 不改 wildFavor |
 
 ## 编辑器
 

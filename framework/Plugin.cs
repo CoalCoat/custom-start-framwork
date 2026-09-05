@@ -15,7 +15,7 @@ using PsModI18n;
 using MelonLoader.Utils;
 using Il2Cpp;
 
-[assembly: MelonInfo(typeof(CustomStartFramework.CustomStartFrameworkPlugin), "CustomStartFramework", "1.0.0", "Nico's Lab")]
+[assembly: MelonInfo(typeof(CustomStartFramework.CustomStartFrameworkPlugin), "CustomStartFramework", "1.0.1", "Nico's Lab")]
 [assembly: MelonProcess("Probably Stolen.exe")]
 
 namespace CustomStartFramework
@@ -27,6 +27,7 @@ namespace CustomStartFramework
         internal static bool Injected;
         internal static bool CashGranted;
         internal static bool RentGranted;
+        internal static bool StoreModifiersGranted;
         internal static bool UpgradesGranted;
         internal static bool ReputationGranted;
 
@@ -379,6 +380,68 @@ namespace CustomStartFramework
             }
         }
 
+        internal static void GrantStoreModifiers(PlayerStore store, CustomStartProfile profile)
+        {
+            if (StoreModifiersGranted) return;
+
+            int retailDelta = profile?.RetailMarkupDelta ?? 0;
+            int attractDelta = profile?.BaseStoreAttractivenessDelta ?? 0;
+            ContrabandMarkupDelta contrabandDelta = profile?.ContrabandMarkupDelta;
+            bool hasContraband = contrabandDelta != null && !contrabandDelta.IsEmpty;
+            if (retailDelta == 0 && attractDelta == 0 && !hasContraband)
+            {
+                StoreModifiersGranted = true;
+                return;
+            }
+
+            if (store == null)
+            {
+                try { store = PlayerStore.Instance; } catch { }
+            }
+            if (store == null)
+            {
+                MelonLogger.Msg("Store modifiers not applied yet: PlayerStore not available; will retry.");
+                return;
+            }
+
+            try
+            {
+                MelonLogger.Msg($"Profile {profile.Id}: applying store modifier delta(s).");
+                if (retailDelta != 0)
+                {
+                    store.retailMarkup += retailDelta;
+                    MelonLogger.Msg($"  retailMarkup delta {retailDelta} (now {store.retailMarkup}).");
+                }
+
+                if (hasContraband)
+                {
+                    store.contrabandMarkupLow += contrabandDelta.Low;
+                    store.contrabandMarkupMid += contrabandDelta.Mid;
+                    store.contrabandMarkupHigh += contrabandDelta.High;
+                    store.contrabandMarkupCritial += contrabandDelta.Critical;
+                    MelonLogger.Msg(
+                        $"  contraband markup delta low/mid/high/critical=" +
+                        $"{contrabandDelta.Low}/{contrabandDelta.Mid}/{contrabandDelta.High}/{contrabandDelta.Critical}.");
+                }
+
+                if (attractDelta != 0)
+                {
+                    store.baseStoreAttractiveness += attractDelta;
+                    if (store.baseStoreAttractiveness < 0)
+                        store.baseStoreAttractiveness = 0;
+                    MelonLogger.Msg(
+                        $"  baseStoreAttractiveness delta {attractDelta} (now {store.baseStoreAttractiveness}).");
+                }
+
+                StoreModifiersGranted = true;
+            }
+            catch (Exception e)
+            {
+                MelonLogger.Warning($"Failed to apply store modifiers: {e}");
+                StoreModifiersGranted = true;
+            }
+        }
+
         internal static void GrantUpgrades(CustomStartProfile profile)
         {
             if (UpgradesGranted) return;
@@ -416,7 +479,7 @@ namespace CustomStartFramework
             UpgradesGranted = true;
         }
 
-        internal static void GrantFactionReputation(CustomStartProfile profile)
+        internal static void GrantFactionReputation(PlayerStore store, CustomStartProfile profile)
         {
             if (ReputationGranted) return;
             Dictionary<string, int> deltas = profile?.FactionReputationDelta;
@@ -435,8 +498,15 @@ namespace CustomStartFramework
                 ReputationGranted = true;
                 return;
             }
+            if (store == null)
+            {
+                try { store = PlayerStore.Instance; } catch { }
+            }
             MelonLogger.Msg($"Profile {profile.Id}: applying faction reputation delta(s).");
-            FactionReputationHelper.ApplyDeltas(deltas);
+            FactionReputationHelper.ApplyDeltas(
+                deltas,
+                store,
+                profile.CompensateWildFavorForLowerRep);
             ReputationGranted = true;
         }
 
@@ -459,8 +529,9 @@ namespace CustomStartFramework
 
             GrantCash(store, ActiveProfile);
             GrantRent(store, ActiveProfile);
+            GrantStoreModifiers(store, ActiveProfile);
             GrantUpgrades(ActiveProfile);
-            GrantFactionReputation(ActiveProfile);
+            GrantFactionReputation(store, ActiveProfile);
             ProcessItems(ActiveProfile, hook);
             if (ItemsRemoved && Injected)
             {
@@ -515,6 +586,7 @@ namespace CustomStartFramework
                 CustomStartFrameworkPlugin.Injected = false;
                 CustomStartFrameworkPlugin.CashGranted = false;
                 CustomStartFrameworkPlugin.RentGranted = false;
+                CustomStartFrameworkPlugin.StoreModifiersGranted = false;
                 CustomStartFrameworkPlugin.UpgradesGranted = false;
                 CustomStartFrameworkPlugin.ReputationGranted = false;
             }

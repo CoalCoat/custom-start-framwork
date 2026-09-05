@@ -31,6 +31,14 @@
   "removeItems": [],
   "extraCash": 200,
   "extraRent": 0,
+  "retailMarkupDelta": 0,
+  "contrabandMarkupDelta": {
+    "low": 0,
+    "mid": 0,
+    "high": 0,
+    "critical": 0
+  },
+  "baseStoreAttractivenessDelta": 0,
   "unlockedUpgrades": [],
   "factionReputationDelta": {
     "lower": 30,

@@ -18,7 +18,8 @@ DEFAULT_CATALOG = SCRIPT_DIR / "catalog.json"
 DEFAULT_START_TYPES = SCRIPT_DIR / "start_types.json"
 SETTINGS_FILE = SCRIPT_DIR / "editor_settings.json"
 CATALOG_PREVIEW_LIMIT = 150
-DESC_MAX_LEN = 100
+DESC_MAX_LEN_ZH = 150
+DESC_MAX_LEN_EN = 250
 ICON_SIZE = 32
 ICON_ALPHA_CUTOFF = 32
 ICON_BG_TOLERANCE = 36
@@ -64,6 +65,13 @@ FACTION_KEYS = [
     ("black_market", {"zh": "黑市", "en": "Black Market"}),
     ("revolution", {"zh": "革命", "en": "Revolution"}),
     ("cartel", {"zh": "卡特尔", "en": "Cartel"}),
+]
+
+CONTRABAND_MARKUP_KEYS = [
+    ("low", {"zh": "低", "en": "Low"}),
+    ("mid", {"zh": "中", "en": "Mid"}),
+    ("high", {"zh": "高", "en": "High"}),
+    ("critical", {"zh": "严重", "en": "Critical"}),
 ]
 
 UPGRADES = {
@@ -127,14 +135,14 @@ UI: dict[str, dict[str, str]] = {
     "btn_duplicate": {"zh": "复制", "en": "Duplicate"},
     "tab_meta": {"zh": "Perk 信息", "en": "Perk Info"},
     "tab_items": {"zh": "物品清单", "en": "Loadout"},
-    "tab_cash": {"zh": "现金/租金", "en": "Cash / Rent"},
+    "tab_cash": {"zh": "经济/店铺", "en": "Economy / Store"},
     "tab_upgrades": {"zh": "网络升级", "en": "Upgrades"},
     "tab_reputation": {"zh": "阵营声望 Δ", "en": "Faction Rep Δ"},
     "label_id": {"zh": "ID（自动生成）", "en": "ID (auto-generated)"},
     "label_name_zh": {"zh": "名称（中文）", "en": "Name (Chinese)"},
     "label_name_en": {"zh": "名称（英文）", "en": "Name (English)"},
-    "label_desc_zh": {"zh": "描述（中文，最多100字）", "en": "Description (Chinese, max 100 chars)"},
-    "label_desc_en": {"zh": "描述（英文，最多100字）", "en": "Description (English, max 100 chars)"},
+    "label_desc_zh": {"zh": "描述（中文，最多150字）", "en": "Description (Chinese, max 150 chars)"},
+    "label_desc_en": {"zh": "描述（英文，最多250字）", "en": "Description (English, max 250 chars)"},
     "label_cost": {"zh": "Perk 点数消耗", "en": "Perk point cost"},
     "label_type": {"zh": "类型 (0=正面 1=负面 2=中性)", "en": "Type (0=positive 1=negative 2=neutral)"},
     "label_allowed": {"zh": "可用起始职业", "en": "Allowed start types"},
@@ -174,8 +182,14 @@ UI: dict[str, dict[str, str]] = {
     "items_remove_title": {"zh": "删除物品", "en": "Items to remove"},
     "btn_remove_from_add": {"zh": "从新增列表移除", "en": "Remove from add list"},
     "btn_remove_from_remove": {"zh": "从删除列表移除", "en": "Remove from remove list"},
-    "label_extra_cash": {"zh": "额外现金", "en": "Extra cash"},
-    "label_extra_rent": {"zh": "额外租金", "en": "Extra rent"},
+    "label_extra_cash": {"zh": "额外现金 Δ", "en": "Extra cash Δ"},
+    "label_extra_rent": {"zh": "额外租金 Δ", "en": "Extra rent Δ"},
+    "label_attractiveness_delta": {"zh": "店铺吸引力 Δ", "en": "Store attractiveness Δ"},
+    "label_contraband_markup_delta": {"zh": "违禁品加价 Δ（百分点）", "en": "Contraband markup Δ (percent points)"},
+    "economy_tab_hint": {
+        "zh": "以下数值均为「在起始职业默认值上的增减」，不是存档最终绝对值。0 = 不改动。一贫如洗参考：租金 200、吸引力 250、违禁品加价 35/70/100/200。",
+        "en": "All values are deltas on the start-type baseline, not final save absolutes. 0 = no change. Penniless baseline: rent 200, attractiveness 250, contraband markup 35/70/100/200.",
+    },
     "status_unsaved": {"zh": "未保存", "en": "Unsaved"},
     "status_loading": {"zh": "加载中…", "en": "Loading…"},
     "status_loading_catalog": {"zh": "加载物品库…", "en": "Loading item catalog…"},
@@ -266,6 +280,9 @@ def empty_profile(profile_id: str) -> dict:
         "removeItems": [],
         "extraCash": 0,
         "extraRent": 0,
+        "retailMarkupDelta": 0,
+        "contrabandMarkupDelta": {k: 0 for k, _ in CONTRABAND_MARKUP_KEYS},
+        "baseStoreAttractivenessDelta": 0,
         "unlockedUpgrades": [],
         "factionReputationDelta": {k: 0 for k, _ in FACTION_KEYS},
     }
@@ -322,7 +339,7 @@ def bilingual_label(en: str, zh: str, item_id: str = "") -> str:
     return first or second or item_id
 
 
-def clamp_text(text: str, max_len: int = DESC_MAX_LEN) -> str:
+def clamp_text(text: str, max_len: int = DESC_MAX_LEN_ZH) -> str:
     text = text or ""
     return text if len(text) <= max_len else text[:max_len]
 
@@ -413,8 +430,8 @@ def process_icon_file(src: Path, dest: Path) -> None:
 def build_icon_prompt(data: dict) -> str:
     name_en = data.get("name", {}).get("en", "").strip() or "Custom Start Perk"
     name_zh = data.get("name", {}).get("zh", "").strip()
-    desc_en = clamp_text((data.get("description", {}).get("en", "") or "").strip())
-    desc_zh = clamp_text((data.get("description", {}).get("zh", "") or "").strip())
+    desc_en = clamp_text((data.get("description", {}).get("en", "") or "").strip(), DESC_MAX_LEN_EN)
+    desc_zh = clamp_text((data.get("description", {}).get("zh", "") or "").strip(), DESC_MAX_LEN_ZH)
 
     subject_lines = [f'Subject perk: "{name_en}".']
     if name_zh:
@@ -497,6 +514,8 @@ class ProfileEditor(tk.Tk):
         self._i18n_labels: list[tuple[ttk.Label, str]] = []
         self._i18n_buttons: list[tuple[ttk.Button, str]] = []
         self._rep_labels: dict[str, ttk.Label] = {}
+        self._contraband_labels: dict[str, ttk.Label] = {}
+        self._preserved_retail_markup_delta = 0
 
         self._build_menu()
         self._build_layout()
@@ -576,6 +595,10 @@ class ProfileEditor(tk.Tk):
 
         for key, widget in self._rep_labels.items():
             names = dict(FACTION_KEYS).get(key, {})
+            widget.config(text=names.get(I18n._lang, key))
+
+        for key, widget in self._contraband_labels.items():
+            names = dict(CONTRABAND_MARKUP_KEYS).get(key, {})
             widget.config(text=names.get(I18n._lang, key))
 
         self._save_ui_to_current(silent=True)
@@ -765,10 +788,38 @@ class ProfileEditor(tk.Tk):
         self.cash_tab = tab
         self.cash_var = tk.StringVar(value="0")
         self.rent_var = tk.StringVar(value="0")
+        self.attractiveness_var = tk.StringVar(value="0")
+        self.contraband_vars: dict[str, tk.StringVar] = {}
+        self._contraband_labels: dict[str, ttk.Label] = {}
+
+        hint = ttk.Label(
+            tab,
+            text=t("economy_tab_hint"),
+            wraplength=420,
+            justify="left",
+            foreground="#666",
+        )
+        hint.pack(anchor="w", pady=(0, 10))
+
         self._label(tab, "label_extra_cash").pack(anchor="w")
         ttk.Entry(tab, textvariable=self.cash_var, width=16).pack(anchor="w", pady=4)
         self._label(tab, "label_extra_rent").pack(anchor="w")
         ttk.Entry(tab, textvariable=self.rent_var, width=16).pack(anchor="w", pady=4)
+        self._label(tab, "label_attractiveness_delta").pack(anchor="w")
+        ttk.Entry(tab, textvariable=self.attractiveness_var, width=16).pack(anchor="w", pady=(4, 8))
+
+        self._label(tab, "label_contraband_markup_delta").pack(anchor="w")
+        contraband_frame = ttk.Frame(tab)
+        contraband_frame.pack(fill="x", pady=4)
+        for key, names in CONTRABAND_MARKUP_KEYS:
+            row = ttk.Frame(contraband_frame)
+            row.pack(fill="x", pady=2)
+            label = ttk.Label(row, text=names[I18n._lang], width=16)
+            label.pack(side="left")
+            self._contraband_labels[key] = label
+            var = tk.StringVar(value="0")
+            self.contraband_vars[key] = var
+            ttk.Entry(row, textvariable=var, width=10).pack(side="left")
 
     def _build_upgrades_tab(self):
         tab = ttk.Frame(self.notebook, padding=8)
@@ -973,23 +1024,27 @@ class ProfileEditor(tk.Tk):
             self.profiles[self.current_id]["dirty"] = True
             self._update_status()
 
+    def _desc_max_len(self, widget: tk.Text) -> int:
+        return DESC_MAX_LEN_EN if widget is self.desc_en else DESC_MAX_LEN_ZH
+
     def _on_desc_changed(self, widget: tk.Text) -> None:
         if self._loading:
             return
+        max_len = self._desc_max_len(widget)
         text = widget.get("1.0", "end-1c")
-        if len(text) > DESC_MAX_LEN:
-            widget.delete(f"1.0+{DESC_MAX_LEN}c", "end-1c")
+        if len(text) > max_len:
+            widget.delete(f"1.0+{max_len}c", "end-1c")
         self._refresh_icon_prompt()
         if self.current_id:
             self.profiles[self.current_id]["dirty"] = True
             self._update_status()
 
     def _read_desc(self, widget: tk.Text) -> str:
-        return clamp_text(widget.get("1.0", "end").strip())
+        return clamp_text(widget.get("1.0", "end").strip(), self._desc_max_len(widget))
 
     def _set_desc(self, widget: tk.Text, text: str) -> None:
         widget.delete("1.0", "end")
-        widget.insert("1.0", clamp_text(text or ""))
+        widget.insert("1.0", clamp_text(text or "", self._desc_max_len(widget)))
 
     def _collect_ui_data(self) -> dict:
         data = {
@@ -1007,6 +1062,11 @@ class ProfileEditor(tk.Tk):
             "removeItems": [self._item_id_from_display(self.remove_list.get(i)) for i in range(self.remove_list.size())],
             "extraCash": int(self.cash_var.get() or "0"),
             "extraRent": int(self.rent_var.get() or "0"),
+            "retailMarkupDelta": self._preserved_retail_markup_delta,
+            "contrabandMarkupDelta": {
+                k: int(v.get() or "0") for k, v in self.contraband_vars.items()
+            },
+            "baseStoreAttractivenessDelta": int(self.attractiveness_var.get() or "0"),
             "unlockedUpgrades": [
                 self._item_id_from_display(self.upgrades_list.get(i)) for i in range(self.upgrades_list.size())
             ],
@@ -1183,6 +1243,15 @@ class ProfileEditor(tk.Tk):
         self._reload_item_lists(data)
         self.cash_var.set(str(data.get("extraCash", 0)))
         self.rent_var.set(str(data.get("extraRent", 0)))
+        self._preserved_retail_markup_delta = int(data.get("retailMarkupDelta", 0) or 0)
+        self.attractiveness_var.set(str(data.get("baseStoreAttractivenessDelta", 0)))
+        contraband = data.get("contrabandMarkupDelta", {})
+        if isinstance(contraband, int):
+            for key, var in self.contraband_vars.items():
+                var.set(str(contraband))
+        else:
+            for key, var in self.contraband_vars.items():
+                var.set(str(contraband.get(key, 0)))
         self._reload_upgrades_list(data)
         rep = data.get("factionReputationDelta", {})
         for key, var in self.rep_vars.items():

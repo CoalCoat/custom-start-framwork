@@ -1,17 +1,13 @@
 Custom Start Framework / 自定义开局框架
 
-=== 中文 ===
-1.0.0
-
-首版发布。安装 CustomStartFramework-1.0.0.dll → 游戏 Mods/CustomStartFramework.dll。
-
-- Perk 驱动：UserData/custom-start/{id}/profile.json 定义开局，Mod 启动时自动扫描注册
-- 新游戏选中对应 Perk 后注入：items / removeItems、extraCash / extraRent、unlockedUpgrades、factionReputationDelta
-- allowedStartTypes 绑定起始职业；[] 或未配置 = 全部职业可见
-- 可选 icon.png 自定义 Perk 图标；name / description 支持中英文，运行时随游戏语言切换
-- 发布包含 editor/ 配置编辑器
-
 === English ===
+1.0.1
+
+- After Lower Levels rep injection, Wild Favor is restored by default so factionReputationDelta.lower does not grant free network points via the game's ×40 sync
+- New profile field compensateWildFavorForLowerRep (default true); set false to keep the old behavior
+- New profile fields alongside extraCash / extraRent: contrabandMarkupDelta (per tier or uniform int), baseStoreAttractivenessDelta; retailMarkupDelta supported in JSON (hidden in editor for now)
+- Editor tab renamed to Economy / Store; retail markup input temporarily removed from editor UI
+
 1.0.0
 
 First release. Install CustomStartFramework-1.0.0.dll → Mods/CustomStartFramework.dll.
@@ -21,3 +17,21 @@ First release. Install CustomStartFramework-1.0.0.dll → Mods/CustomStartFramew
 - allowedStartTypes limits visible start types; [] or omitted = all start types
 - Optional icon.png; name / description support zh/en in profile JSON and follow the game locale at runtime
 - Release includes editor/ profile tool
+
+=== 中文 ===
+1.0.1
+
+- 下层区声望注入后默认恢复王尔德的恩惠（Wild Favor），避免 factionReputationDelta.lower 经游戏 ×40 换算白送网络升级点数
+- profile.json 新增 compensateWildFavorForLowerRep（默认 true）；设为 false 可恢复旧行为
+- profile.json 新增与 extraCash / extraRent 并列的经济字段：contrabandMarkupDelta（分级或统一整数）、baseStoreAttractivenessDelta；retailMarkupDelta 仍可在 JSON 中配置（编辑器暂隐藏）
+- 编辑器「经济/店铺」页签；零售加价输入暂从编辑器移除
+
+1.0.0
+
+首版发布。安装 CustomStartFramework-1.0.0.dll → 游戏 Mods/CustomStartFramework.dll。
+
+- Perk 驱动：UserData/custom-start/{id}/profile.json 定义开局，Mod 启动时自动扫描注册
+- 新游戏选中对应 Perk 后注入：items / removeItems、extraCash / extraRent、unlockedUpgrades、factionReputationDelta
+- allowedStartTypes 绑定起始职业；[] 或未配置 = 全部职业可见
+- 可选 icon.png 自定义 Perk 图标；name / description 支持中英文，运行时随游戏语言切换
+- 发布包含 editor/ 配置编辑器

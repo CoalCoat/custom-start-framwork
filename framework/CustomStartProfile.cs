@@ -36,9 +36,25 @@ namespace CustomStartFramework
         public List<string> RemoveItems { get; set; } = new List<string>();
         public int ExtraCash { get; set; }
         public int ExtraRent { get; set; }
+
+        /// <summary>Added to PlayerStore.retailMarkup after start-type baseline is applied. Not an absolute percent.</summary>
+        public int RetailMarkupDelta { get; set; }
+
+        /// <summary>Added to contrabandMarkupLow/Mid/High/Critial. Int JSON applies uniform delta to all tiers.</summary>
+        public ContrabandMarkupDelta ContrabandMarkupDelta { get; set; }
+
+        /// <summary>Added to PlayerStore.baseStoreAttractiveness (typical baseline ~250). Clamped to &gt;= 0 after apply.</summary>
+        public int BaseStoreAttractivenessDelta { get; set; }
+
         public List<string> UnlockedUpgrades { get; set; } = new List<string>();
         public Dictionary<string, int> FactionReputationDelta { get; set; } =
             FactionDefaults.CreateReputationDelta();
+
+        /// <summary>
+        /// When true (default), lower-levels rep deltas from this profile do not change Wild Favor.
+        /// The game otherwise syncs Wild Favor from Lower Levels reputation on rep updates.
+        /// </summary>
+        public bool CompensateWildFavorForLowerRep { get; set; } = true;
 
         [JsonIgnore]
         public string FolderPath { get; set; }

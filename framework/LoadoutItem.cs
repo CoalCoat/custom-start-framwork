@@ -164,4 +164,90 @@ namespace CustomStartFramework
                 ["cartel"] = 0,
             };
     }
+
+    /// <summary>
+    /// Delta applied to PlayerStore contraband markup tiers (percent points).
+    /// Maps to contrabandMarkupLow/Mid/High/Critial on PlayerStore.
+    /// </summary>
+    [JsonConverter(typeof(ContrabandMarkupDeltaConverter))]
+    public sealed class ContrabandMarkupDelta
+    {
+        public int Low { get; set; }
+        public int Mid { get; set; }
+        public int High { get; set; }
+        public int Critical { get; set; }
+
+        public bool IsEmpty => Low == 0 && Mid == 0 && High == 0 && Critical == 0;
+    }
+
+    public sealed class ContrabandMarkupDeltaConverter : JsonConverter<ContrabandMarkupDelta>
+    {
+        public override ContrabandMarkupDelta Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Null)
+                return null;
+
+            if (reader.TokenType == JsonTokenType.Number)
+            {
+                int uniform = reader.GetInt32();
+                return new ContrabandMarkupDelta
+                {
+                    Low = uniform,
+                    Mid = uniform,
+                    High = uniform,
+                    Critical = uniform,
+                };
+            }
+
+            if (reader.TokenType != JsonTokenType.StartObject)
+                throw new JsonException("contrabandMarkupDelta must be an integer or object.");
+
+            var delta = new ContrabandMarkupDelta();
+            using JsonDocument doc = JsonDocument.ParseValue(ref reader);
+            foreach (JsonProperty prop in doc.RootElement.EnumerateObject())
+            {
+                if (prop.Value.ValueKind != JsonValueKind.Number)
+                    continue;
+                int value = prop.Value.GetInt32();
+                switch (prop.Name.ToLowerInvariant())
+                {
+                    case "low":
+                        delta.Low = value;
+                        break;
+                    case "mid":
+                        delta.Mid = value;
+                        break;
+                    case "high":
+                        delta.High = value;
+                        break;
+                    case "critical":
+                    case "critial":
+                        delta.Critical = value;
+                        break;
+                }
+            }
+            return delta;
+        }
+
+        public override void Write(Utf8JsonWriter writer, ContrabandMarkupDelta value, JsonSerializerOptions options)
+        {
+            if (value == null || value.IsEmpty)
+            {
+                writer.WriteStartObject();
+                writer.WriteNumber("low", 0);
+                writer.WriteNumber("mid", 0);
+                writer.WriteNumber("high", 0);
+                writer.WriteNumber("critical", 0);
+                writer.WriteEndObject();
+                return;
+            }
+
+            writer.WriteStartObject();
+            writer.WriteNumber("low", value.Low);
+            writer.WriteNumber("mid", value.Mid);
+            writer.WriteNumber("high", value.High);
+            writer.WriteNumber("critical", value.Critical);
+            writer.WriteEndObject();
+        }
+    }
 }

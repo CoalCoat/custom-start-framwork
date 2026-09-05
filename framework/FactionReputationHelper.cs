@@ -46,9 +46,60 @@ namespace CustomStartFramework
         static FactionRepBinding Bind(Action<int> mod, string logName) =>
             new FactionRepBinding { Mod = mod, LogName = logName };
 
-        internal static void ApplyDeltas(Dictionary<string, int> deltas)
+        internal static bool IsLowerLevelsKey(string key)
+        {
+            if (string.IsNullOrWhiteSpace(key)) return false;
+            key = key.Trim();
+            return key.Equals("lower", StringComparison.OrdinalIgnoreCase)
+                || key.Equals("ll", StringComparison.OrdinalIgnoreCase)
+                || key.Equals("lower_levels", StringComparison.OrdinalIgnoreCase)
+                || key.Equals("faction_lower_level", StringComparison.OrdinalIgnoreCase);
+        }
+
+        /// <summary>
+        /// The game ties Wild Favor (PlayerStore.wildFavor) to Lower Levels reputation
+        /// inside StoreReputation.UpdateReputation (observed ratio: rep * 40).
+        /// Restore the pre-injection value so profile lower deltas do not grant free Wild Favor.
+        /// </summary>
+        internal static void CompensateWildFavorForLowerDelta(PlayerStore store, int wildFavorBefore)
+        {
+            if (store == null) return;
+            try
+            {
+                int current = store.wildFavor;
+                if (current == wildFavorBefore) return;
+                store.wildFavor = wildFavorBefore;
+                MelonLogger.Msg(
+                    $"  Wild Favor restored to {wildFavorBefore} (was {current}; lower rep delta does not change Wild Favor).");
+            }
+            catch (Exception e)
+            {
+                MelonLogger.Warning($"Failed to restore Wild Favor after lower rep delta: {e.Message}");
+            }
+        }
+
+        internal static void ApplyDeltas(
+            Dictionary<string, int> deltas,
+            PlayerStore store = null,
+            bool compensateWildFavorForLowerRep = true)
         {
             if (deltas == null || deltas.Count == 0) return;
+
+            int wildFavorBefore = 0;
+            bool lowerDeltaPending = false;
+            if (compensateWildFavorForLowerRep && store != null)
+            {
+                try { wildFavorBefore = store.wildFavor; } catch { }
+                foreach (KeyValuePair<string, int> entry in deltas)
+                {
+                    if (entry.Value == 0) continue;
+                    if (IsLowerLevelsKey(entry.Key))
+                    {
+                        lowerDeltaPending = true;
+                        break;
+                    }
+                }
+            }
 
             foreach (KeyValuePair<string, int> entry in deltas)
             {
@@ -72,6 +123,9 @@ namespace CustomStartFramework
                     MelonLogger.Warning($"Failed to apply {binding.LogName} reputation delta {entry.Value}: {e.Message}");
                 }
             }
+
+            if (compensateWildFavorForLowerRep && lowerDeltaPending)
+                CompensateWildFavorForLowerDelta(store, wildFavorBefore);
         }
     }
 }
