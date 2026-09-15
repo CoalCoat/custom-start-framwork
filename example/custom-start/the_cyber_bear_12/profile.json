@@ -7,32 +7,20 @@
   },
   "description": {
     "zh": "贝爷在极限求生拍摄中误闯时空裂隙，坠入霓虹赛博底层，野外本能化作识货眼光。旧背包在肩，手电扫描仪作指南针，战斗匕首作保险。附拾荒经营工具、识货装备与应急补给，现金+200。",
-    "en": "Bear Grylls fell through a spacetime rift into cyberpunk slums. Fieldcraft became salvage appraisal;"
+    "en": "This is a test to see if I understood how it works.;"
   },
-  "cost": 0,
-  "type": 2,
+  "cost": -20,
+  "type": -20,
   "allowedStartTypes": [
     12
   ],
-  "items": [
-    "labeler",
-    "magnifier",
-    "scav_token",
-    "ingot_book",
-    "backpack_large",
-    "metal_scanner",
-    "flashlight",
-    "combat_knife",
-    "hemostatic_bandage",
-    "energy_drink",
-    "cat_bar"
-  ],
+  "items": [],
   "removeItems": [],
-  "extraCash": 200,
+  "extraCash": 0,
   "extraRent": 0,
   "unlockedUpgrades": [],
   "factionReputationDelta": {
-    "lower": 30,
+    "lower": 0,
     "upper": 0,
     "security": 0,
     "black_market": 0,
